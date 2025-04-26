@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  email        String         @unique
+  name         String
+  image        String?
+  password     String?
+  role         String         @default("user")
+  cart         Cart[]
+  cpf          String?
+  address      Address?
+  telefone     String?
+  pedidos      Pedido[]
+  notification Notification[]
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  href      String
+  seen      Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  rua         String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String
+  cep         String
+  userId      String   @unique @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  Pedido      Pedido[]
+}
+
+model CartProduto {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  cart       Cart    @relation(fields: [cartId], references: [id])
+  cartId     String  @db.ObjectId
+  produto    Produto @relation(fields: [produtoId], references: [id])
+  produtoId  String  @db.ObjectId
+  quantidade Int
+}
+
+model Cart {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  user     User          @relation(fields: [userId], references: [id])
+  userId   String        @db.ObjectId
+  products CartProduto[]
+  total    Float
+  status   String
+}
+
+model Produto {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  nome        String          @unique
+  descricao   String
+  precoOrg    Float
+  precoDes    Float
+  imagens     String[]
+  tags        String
+  peso        Float
+  altura      Float
+  largura     Float
+  comprimento Float
+  Cart        CartProduto[]
+  pedidos     PedidoProduto[]
+}
+
+model Pedido {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  user             User            @relation(fields: [userId], references: [id])
+  userId           String          @db.ObjectId
+  produtos         PedidoProduto[]
+  valorFrete       Float
+  tipoFrete        String
+  totalProdutos    Int
+  valorTotal       Float
+  nomeDestinatario String
+  meioPagamento    String
+  pagamentoId      Int             @unique
+  status           String          @default("processando")
+  statusEnvio      String
+  codigoRastreio   String?
+  address          Address         @relation(fields: [addressId], references: [id])
+  addressId        String          @db.ObjectId
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model PedidoProduto {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  pedido     Pedido  @relation(fields: [pedidoId], references: [id])
+  pedidoId   String  @db.ObjectId
+  produto    Produto @relation(fields: [produtoId], references: [id])
+  produtoId  String  @db.ObjectId
+  quantidade Int
+  preco      Float
+}
+
+model Banners {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  imagens String[]
+}
