@@ -12,6 +12,7 @@ cloudinary.v2.config({
 
 export async function GET() {
   const banners = await prisma.banners.findMany();
+  console.log(banners)
   return NextResponse.json({ data: banners });
 }
 
@@ -46,10 +47,10 @@ export async function POST(request: NextRequest) {
         const arrayBuffer = await imagem.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Fazer upload para o Cloudinary
+        // Fazer upload para o Cloudinary sem especificar uma pasta
         const result = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.v2.uploader.upload_stream(
-            { folder: 'banners' }, // Pasta no Cloudinary
+            {}, // Removido o parâmetro folder
             (error, result) => {
               if (error) reject(error);
               else resolve(result);
