@@ -53,6 +53,7 @@ export default function Dashboard() {
         .get("/api/banners")
         .then((response) => {
           setBanners(response.data.data);
+          console.log(banners);
         })
         .catch((error) => {
           console.error("Erro ao buscar banners:", error);
