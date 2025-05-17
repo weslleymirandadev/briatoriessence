@@ -14,6 +14,7 @@ import Link from "next/link";
 
 export default function Home() {
   const [produtos, setProdutos] = useState<any>([]);
+  const [banners, setBanners] = useState<string[]>([]); // Estado para armazenar URLs dos banners
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
 
@@ -22,14 +23,25 @@ export default function Home() {
   const { ref: ref3, isVisible: isVisible3 } = useIsVisible();
   const { ref: ref4, isVisible: isVisible4 } = useIsVisible();
 
-  const images = [
-    "/banners/banner.jpeg",
-    "/banners/banner2.jpg",
-    "/banners/banner3.jpg",
-    "/banners/banner4.webp",
-    "/banners/banner5.webp",
-  ];
+  // Buscar banners da API
+  useEffect(() => {
+    axios
+      .get("/api/banners")
+      .then((response) => {
+        if (response.data.data && Array.isArray(response.data.data)) {
+          // Extrair URLs das imagens dos banners
+          const bannerUrls = response.data.data.flatMap((banner: any) => banner.imagens);
+          setBanners(bannerUrls);
+        } else {
+          console.error("Erro ao buscar banners: resposta inválida");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar banners:", error);
+      });
+  }, []);
 
+  // Buscar produtos
   useEffect(() => {
     axios
       .get("/api/produtos")
@@ -70,7 +82,7 @@ export default function Home() {
         ${isVisible1 ? "opacity-100" : "opacity-0"}
       `}
       >
-        <Carousel images={images} />
+        <Carousel images={banners} /> {/* Usar banners dinâmicos */}
       </section>
 
       <section
