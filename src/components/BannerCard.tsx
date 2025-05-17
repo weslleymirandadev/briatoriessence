@@ -4,7 +4,7 @@ import { FaTrash } from "react-icons/fa";
 
 interface Banner {
   id: string;
-  imagem: string;
+  imagens: string[];
   titulo: string;
 }
 
@@ -30,20 +30,20 @@ export default function BannerCard({ banner }: BannerCardProps) {
     <div className="flex items-center gap-4 p-3 border-2 border-gray-300 rounded-md relative bg-white shadow-xl">
       <div className="relative w-20 h-20 flex-shrink-0">
         <Image
-          src={banner.imagem}
+          src={banner.imagens[0]}
           alt={banner.titulo}
           fill
           className="rounded-md object-cover"
         />
       </div>
-      <div>
-        <h1 className="text-black text-lg font-semibold">{banner.titulo}</h1>
+      <div className="max-w-[150px]">
+        <h1 className="text-black text-lg font-semibold line-clamp-1">{banner.id}</h1>
       </div>
       <button
-        className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+        className="cursor-pointer absolute top-2 right-2 text-red-500 hover:text-red-700"
         onClick={handleDelete}
       >
-        <FaTrash size={16} />
+        <FaTrash size={18} />
       </button>
     </div>
   );
