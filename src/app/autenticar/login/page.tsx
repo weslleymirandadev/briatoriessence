@@ -12,7 +12,6 @@ import { handleGoogleSignIn } from "@/handlers/handleGoogleSignIn";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-// Componente que utiliza useSearchParams()
 function AutenticarContent() {
   const [showPass, setShowPass] = useState<boolean>(false);
   const searchParams = useSearchParams();
