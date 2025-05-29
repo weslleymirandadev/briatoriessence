@@ -32,7 +32,9 @@ const addressSchema = z.object({
   bairro: z.string().min(1, "Bairro é obrigatório"),
   estado_cidade: z.string().min(1, "Cidade e Estado são obrigatórios"),
   frete: z.string().refine(
-    (value) => value !== "" && !isNaN(Number(value)) && Number(value) >= 0,
+    (value) =>
+      (value !== "" && !isNaN(Number(value)) && Number(value) >= 0) ||
+      value == "estabelecimento",
     { message: "Selecione uma opção de frete" } // Mensagem de erro personalizada
   ),
 });
@@ -99,14 +101,12 @@ export default function AddressForm({
     }
   }, [cepValue, setValue, getValues]);
 
-  // Componente AddressForm (parte relevante)
   const saveAndAdvance = async (data: AddressFormData) => {
     try {
-      // 1. Salvar endereço
       const [estado, cidade] = data.estado_cidade.split(" - ");
 
       const post_data = {
-        userId: session?.user.id, // Obter da sessão
+        userId: session?.user.id,
         rua: data.logradouro,
         numero: data.numero,
         complemento: data.complemento,
@@ -123,23 +123,38 @@ export default function AddressForm({
         headers: { "Content-Type": "application/json" },
       });
 
-      // 2. Criar pedido preliminar
       const cartResponse = await axios.get("/api/usuario/carrinho");
       const cartData = await cartResponse.data;
-      const selectedFrete = frete[Number(data.frete)];
+
+      if (data.frete != "estabelecimento") {
+        const selectedFrete = frete[Number(data.frete)];
+
+        const orderData = {
+          produtos: cartData.data.products,
+          frete: selectedFrete.price,
+          tipoFrete: selectedFrete.name,
+          total: cartData.data.total + selectedFrete.price,
+          endereco: data,
+          status: "pendente",
+        };
+
+        sessionStorage.setItem("pedidoPendente", JSON.stringify(orderData));
+
+        return advanceTo("billing");
+      }
 
       const orderData = {
         produtos: cartData.data.products,
-        frete: selectedFrete.price,
-        tipoFrete: selectedFrete.name,
-        total: cartData.data.total + selectedFrete.price,
+        frete: 0,
+        tipoFrete: "estabelecimento",
+        total: cartData.data.total,
         endereco: data,
         status: "pendente",
       };
 
       sessionStorage.setItem("pedidoPendente", JSON.stringify(orderData));
 
-      advanceTo("billing");
+      return advanceTo("billing");
     } catch (error) {
       console.error(error);
       setError("Erro ao processar pedido. Tente novamente.");
@@ -492,7 +507,25 @@ export default function AddressForm({
           </div>
         </div>
 
+        <hr className="border border-gray-300 my-4" />
+
         <section className="mb-5 mt-4">
+          <h2 className="text-center text-2xl">Retirar no estabelecimento</h2>
+          <label className="flex items-center w-full p-3 border border-gray-300 rounded-md mb-2 cursor-pointer hover:bg-gray-50">
+            <input
+              type="radio"
+              value={"estabelecimento"}
+              {...register("frete")}
+              className="mr-3"
+            />
+            <div className="flex-grow">
+              <h3 className="text-gray-500">
+                Retirar em Rua Otávio Palmonari, 33 C - Santa Isabel, Siqueira
+                Campos - PR
+              </h3>
+            </div>
+          </label>
+
           {frete && (
             <>
               <hr className="border border-gray-300 my-4" />

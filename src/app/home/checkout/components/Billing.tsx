@@ -418,17 +418,30 @@ export default function Billing({ session }: { session: Session | null }) {
       </div>
 
       {/* Endereço de Entrega */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-4">Endereço de Entrega</h3>
-        <div className="space-y-2">
-          <p className="flex items-center">
-            <FaHouseUser className="inline text-[var(--primary)] text-2xl me-2" />
-            {pedido.endereco.logradouro}, {pedido.endereco.numero},{" "}
-            {pedido.endereco.complemento}, {pedido.endereco.bairro},{" "}
-            {pedido.endereco.cep}, {pedido.endereco.estado_cidade}
-          </p>
+      {pedido.tipoFrete != "estabelecimento" ? (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold mb-4">Endereço de Entrega</h3>
+          <div className="space-y-2">
+            <p className="flex items-center">
+              <FaHouseUser className="inline text-[var(--primary)] text-2xl me-2" />
+              {pedido.endereco.logradouro}, {pedido.endereco.numero},{" "}
+              {pedido.endereco.complemento}, {pedido.endereco.bairro},{" "}
+              {pedido.endereco.cep}, {pedido.endereco.estado_cidade}
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold mb-4">Endereço de Retirada</h3>
+          <div className="space-y-2">
+            <p className="flex items-center">
+              <FaHouseUser className="inline text-[var(--primary)] text-2xl me-2" />
+              Retirar em Rua Otávio Palmonari, 33 C - Santa Isabel, Siqueira
+              Campos - PR
+            </p>
+          </div>
+        </div>
+      )}
 
       <hr className="border border-gray-300 my-6" />
 
