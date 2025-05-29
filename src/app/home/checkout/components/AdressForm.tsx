@@ -526,6 +526,14 @@ export default function AddressForm({
             </div>
           </label>
 
+          {!frete && (
+            <>
+              <hr className="border border-gray-300 my-4" />
+              <h2 className="text-center text-2xl">Opções de Envio</h2>
+              <p className="text-center mt-2">Preencha o campo de CEP</p>
+            </>
+          )}
+
           {frete && (
             <>
               <hr className="border border-gray-300 my-4" />
