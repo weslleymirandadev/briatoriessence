@@ -10,7 +10,7 @@ import Link from "next/link";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { handleGoogleSignIn } from "@/handlers/handleGoogleSignIn";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 function AutenticarContent() {
   const [showPass, setShowPass] = useState<boolean>(false);
@@ -39,7 +39,12 @@ function AutenticarContent() {
   } = useForm<userFormData>({ resolver: zodResolver(createUserFormSchema) });
 
   async function submitFunction(data: userFormData) {
-    console.log(data);
+    await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+        callbackUrl: "/autenticar/login",
+      });
   }
 
   useEffect(() => {
