@@ -104,25 +104,40 @@ export async function GET(req: NextRequest) {
     if (!session)
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-    // Busca todos os pedidos com seus relacionamentos
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user)
+      return NextResponse.json(
+        { error: "Usuário não encontrado" },
+        { status: 404 }
+      );
+
+    // Define the query filter based on user role
+    const isAdmin = user.role === "admin"; // Assuming 'role' is a field in your User model
+    const whereClause = isAdmin ? {} : { user: { email: session.user.email } };
+
+    // Fetch orders with relationships
     const pedidosComRelacionamentos = await prisma.pedido.findMany({
+      where: whereClause,
       include: {
         produtos: {
           include: {
-            produto: true, // Inclui os dados completos do produto
+            produto: true, // Include full product data
           },
         },
-        user: true, // Inclui os dados do usuário se necessário
+        user: true, // Include user data if needed
       },
     });
 
-    // Reformata cada pedido para incluir os produtos diretamente
+    // Format orders to include products directly
     const pedidosFormatados = pedidosComRelacionamentos.map((pedido) => ({
-      ...pedido, // Spread de todos os campos do pedido
+      ...pedido,
       produtos: pedido.produtos.map((item) => ({
-        ...item.produto, // Spread dos dados do produto
-        quantidade: item.quantidade, // Mantém a quantidade
-        precoUnitario: item.preco, // Mantém o preço unitário
+        ...item.produto,
+        quantidade: item.quantidade,
+        precoUnitario: item.preco,
       })),
     }));
 
