@@ -123,7 +123,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "email", type: "email" },
         password: { label: "senha", type: "password" },
-        name: { label: "nome", type: "text" }, // Adiciona o campo name
+        name: { label: "nome", type: "text", optional: true }, // Mark name as optional
       },
       async authorize(credentials) {
         const { email, password, name } = credentials as {
@@ -132,8 +132,8 @@ export const authOptions: NextAuthOptions = {
           name?: string;
         };
 
-        if (!email || !password || !name) {
-          throw new Error("Por favor, preencha todos os campos.");
+        if (!email || !password) {
+          throw new Error("Por favor, preencha os campos de email e senha.");
         }
 
         const user = await prisma.user.findUnique({ where: { email } });
@@ -159,7 +159,7 @@ export const authOptions: NextAuthOptions = {
           const newUser = await prisma.user.create({
             data: {
               email,
-              name,
+              name: name || email.split("@")[0], // Use email prefix as default name if not provided
               password: hashedPassword,
               role:
                 email === process.env.NEXT_PUBLIC_ADMIN_EMAIL1 ||

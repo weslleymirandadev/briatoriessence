@@ -11,6 +11,7 @@ import { MdOutlineAccountCircle } from "react-icons/md";
 import { handleGoogleSignIn } from "@/handlers/handleGoogleSignIn";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
+import axios from "axios";
 
 function AutenticarContent() {
   const [showPass, setShowPass] = useState<boolean>(false);
@@ -39,10 +40,12 @@ function AutenticarContent() {
   } = useForm<userFormData>({ resolver: zodResolver(createUserFormSchema) });
 
   async function submitFunction(data: userFormData) {
+    await axios.get("/")
     await signIn("credentials", {
         redirect: false,
         email: data.email,
         password: data.password,
+        name: "",
         callbackUrl: "/autenticar/login",
       });
   }
