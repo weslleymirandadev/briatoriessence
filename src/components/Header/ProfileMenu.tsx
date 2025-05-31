@@ -130,13 +130,20 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
             ref={profileContainerRef}
             className="cursor-pointer w-[3.3em] h-[3.3em] rounded-md shadow-md flex justify-center items-center transition-colors"
           >
+            {session?.user?.image ? (
             <Image
               width={35}
               height={35}
-              src={session?.user?.image!}
+              src={session?.user?.image}
               alt={session?.user?.name!}
               className="rounded-full border border-black shadow-md"
-            />
+            />): (
+              <div
+              className="rounded-full flex items-center align-middle border border-black shadow-md w-[35px] h-[35px] bg-black"
+              >
+                <span className="m-auto text-2xl text-[var(--primary)]">{session?.user?.name?.split("")[0].toUpperCase()}</span>
+              </div>
+            )}
           </div>
           {showProfileSettings && (
             <ul className="absolute top-full right-0 mt-2 w-48 bg-white shadow-md border border-gray-300 z-50 rounded-md overflow-hidden">

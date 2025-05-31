@@ -9,9 +9,13 @@ import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { handleGoogleSignIn } from "@/handlers/handleGoogleSignIn";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Registrar() {
   const [showPass, setShowPass] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const createUserFormSchema = z
     .object({
@@ -45,7 +49,27 @@ export default function Registrar() {
   } = useForm<userFormData>({ resolver: zodResolver(createUserFormSchema) });
 
   async function submitFunction(data: userFormData) {
-    console.log(data);
+    try {
+      setError(null);
+      const response = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        callbackUrl: "/autenticar/login",
+      });
+
+      if (response?.error) {
+        setError("Erro ao registrar: " + response.error);
+        return;
+      }
+
+      // Se o registro for bem-sucedido, redireciona para a página de destino
+      router.push("/dashboard");
+    } catch (err) {
+      setError("Ocorreu um erro inesperado. Tente novamente.");
+      console.error(err);
+    }
   }
 
   return (
@@ -61,6 +85,8 @@ export default function Registrar() {
               Sua Nova Conta
             </h1>
           </div>
+
+          {error && <span className="text-red-400 block mb-4">{error}</span>}
 
           <div className="relative mb-5">
             <input
